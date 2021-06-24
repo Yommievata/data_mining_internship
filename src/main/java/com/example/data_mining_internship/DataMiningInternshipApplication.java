@@ -27,34 +27,37 @@ public class DataMiningInternshipApplication {
 */
 
         String site = "https://susanavet2.skolverket.se/emil/infos";
+        List<String> urlList = new ArrayList<>();
         try {
-            List<String> urlList = (HTMLUtils.extractLinks(site));
-            for (String url : urlList) {
-                try {
-                    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-                    DocumentBuilder db = dbf.newDocumentBuilder();
-                    Document doc = db.parse(new URL(url).openStream());
-                    Element element = doc.getDocumentElement();
+            urlList = (HTMLUtils.extractLinks(site));      // extracts all links from the site variable url and saves in urlList
 
-                    if (!getString("resultIsDegree", element, 0, 0).equals("false")) {          // skip if no valid degree
-                        String courseId =  getString("identifier", element, 0, 0);                  // get the course id
-                        String [] schoolNames = getSchool(courseId);                                                     // get the school names
-                        System.out.println("Course id   " + courseId);
-                        System.out.println("School swe  " + schoolNames[0]);
-                        System.out.println("School eng  " + schoolNames[1]);
-                        System.out.println("Title swe:  " + getString("string", element, 0, 0));     // swedish title
-                        System.out.println("Title eng:  " + getString("string", element, 1, 0));     // english title
-                        System.out.println("Degree:     " + getString("string", element, 4, 0));    // degree
-                        System.out.println("Points:     " + getString("credits", element, 1, 0));    // points
-                        System.out.println("-----------------------------------------------------------------------------");
-                    }
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+
+        for (String url : urlList) {
+            try {
+                DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                DocumentBuilder db = dbf.newDocumentBuilder();
+                Document doc = db.parse(new URL(url).openStream());
+                Element element = doc.getDocumentElement();
+
+                if (!getString("resultIsDegree", element, 0, 0).equals("false")) {          // skip if no valid degree
+                    String courseId =  getString("identifier", element, 0, 0);                  // get the course id
+                    String [] schoolNames = getSchool(courseId);                                                     // get the school names
+                    System.out.println("Course id   " + courseId);                                                   // school id
+                    System.out.println("School swe  " + schoolNames[0]);
+                    System.out.println("School eng  " + schoolNames[1]);
+                    System.out.println("Title swe:  " + getString("string", element, 0, 0));     // swedish title
+                    System.out.println("Title eng:  " + getString("string", element, 1, 0));     // english title
+                    System.out.println("Degree:     " + getString("string", element, 4, 0));    // degree
+                    System.out.println("Points:     " + getString("credits", element, 1, 0));    // points
+                    System.out.println("-----------------------------------------------------------------------------");
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -74,7 +77,13 @@ public class DataMiningInternshipApplication {
     // ***** Method to get the school names
     private static String[] getSchool(String identifier) {
         String parts[] = identifier.split("\\.");   // split the id into parts with . as delimiter
-        String schoolId = "https://susanavet2.skolverket.se/emil/p."+parts[1]+"."+parts[2]+"?format=xml";
+        String schoolId;
+        if(parts[1].equals("uoh")) {
+            schoolId = "https://susanavet2.skolverket.se/emil/p."+parts[1]+"."+parts[2]+"?format=xml";
+        } else {
+            schoolId = "https://susanavet2.skolverket.se/emil/p."+parts[1]+"?format=xml";
+        }
+
         try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             DocumentBuilder db = dbf.newDocumentBuilder();
