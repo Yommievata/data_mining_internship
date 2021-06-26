@@ -19,12 +19,15 @@ public class DataMiningInternshipApplication {
     public static void main(String[] args) {
         // SpringApplication.run(DataMiningInternshipApplication.class, args)
 
-/*        List<String> urlList = new ArrayList<>();
-        urlList.add("https://susanavet2.skolverket.se/emil/i.uoh.cth.mpcom.13009.20212?format=xml");
-        urlList.add("https://susanavet2.skolverket.se/emil/i.myh.5497?format=xml");
-        urlList.add("https://susanavet2.skolverket.se/emil/i.uoh.liu.6ckeb.60107.20212?format=xml");
-        urlList.add("https://susanavet2.skolverket.se/emil/i.uoh.cth.tktfy.57000.20212?format=xml");
+/*
+        List<String> urlList = new ArrayList<>();
+        urlList.add("https://susanavet2.skolverket.se/emil/i.uoh.gu.h2gpr.1a27a.20212?format=xml");
+        urlList.add("https://susanavet2.skolverket.se/emil/i.uoh.gu.h2gpr.6a27a.20212?format=xml");
+        urlList.add("https://susanavet2.skolverket.se/emil/i.uoh.gu.h2log.6a24b.20212?format=xml");
+        urlList.add("https://susanavet2.skolverket.se/emil/i.uoh.gu.h2log.1a24b.20212?format=xml");
+
 */
+
 
         String site = "https://susanavet2.skolverket.se/emil/infos";
         List<String> urlListWithSwedishSigns = new ArrayList<>();
@@ -35,6 +38,8 @@ public class DataMiningInternshipApplication {
             e.printStackTrace();
         }
         List<String> urlList = new ArrayList<>();
+
+
         for (String url : urlListWithSwedishSigns){                 // change all å ä ö in URLs to encoded valid
             url = url.replace("å", "%C3%A5");
             url = url.replace("ä", "%C3%A4");
@@ -43,12 +48,16 @@ public class DataMiningInternshipApplication {
             System.out.println(url);
         }
 
+
+
         for (String url : urlList) {                        // loop through all urls
             try {
                 DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
                 DocumentBuilder db = dbf.newDocumentBuilder();
                 Document doc = db.parse(new URL(url).openStream());
                 Element element = doc.getDocumentElement();
+
+                // if (getString("resultIsDegree", element, 0, 0).equals("true")) System.out.println(url);            // get all courses with a degree
 
                 if (!getString("resultIsDegree", element, 0, 0).equals("false")) {               // skip all if no valid degree
                     String courseId =  getString("identifier", element, 0, 0);                   // get the course id
@@ -66,6 +75,8 @@ public class DataMiningInternshipApplication {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+
+
         }
     }
 
@@ -92,7 +103,6 @@ public class DataMiningInternshipApplication {
         } else {
             String[] notFound = new String [] {"unknown", "unknown"};                                       // if course is not a university course, return unknown
             return notFound;
-            // schoolId = "https://susanavet2.skolverket.se/emil/p."+parts[1]+"?format=xml";
         }
 
         try {
@@ -102,8 +112,13 @@ public class DataMiningInternshipApplication {
             Element element = doc.getDocumentElement();
 
             String [] names = new String[2];
-            names[0] = getString("emil:string", element, 0, 0);     // the school name in swedish
-            names[1] = getString("emil:string", element,1,0);       // the school name in english
+            if (parts[2].equals("gu")){
+                names[0] = getString("string", element, 0, 0);     // the school name in swedish if Gothenburg university
+                names[1] = getString("string", element,1,0);       // the school name in english if Gothenburg university
+            } else {
+                names[0] = getString("emil:string", element, 0, 0);     // the school name in swedish
+                names[1] = getString("emil:string", element, 1, 0);       // the school name in english
+            }
             return names;
 
         } catch (Exception e) {
